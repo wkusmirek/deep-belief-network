@@ -6,7 +6,7 @@ from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin, Regre
 
 from .activations import SigmoidActivationFunction, ReLUActivationFunction
 from .utils import batch_generator
-
+import matplotlib.pyplot as plt
 
 class BaseModel(object):
     def save(self, save_path):
@@ -27,7 +27,6 @@ class BinaryRBM(BaseEstimator, TransformerMixin, BaseModel):
     """
     This class implements a Binary Restricted Boltzmann machine.
     """
-
     def __init__(self,
                  n_hidden_units=100,
                  activation_function='sigmoid',
@@ -99,9 +98,12 @@ class BinaryRBM(BaseEstimator, TransformerMixin, BaseModel):
         :param _data: array-like, shape = (n_samples, n_features)
         :return:
         """
+        global rbm
         accum_delta_W = np.zeros(self.W.shape)
         accum_delta_b = np.zeros(self.b.shape)
         accum_delta_c = np.zeros(self.c.shape)
+        xiteration = np.zeros(self.n_epochs)
+        yerror = np.zeros(self.n_epochs)
         for iteration in range(1, self.n_epochs + 1):
             idx = np.random.permutation(len(_data))
             data = _data[idx]
@@ -120,6 +122,14 @@ class BinaryRBM(BaseEstimator, TransformerMixin, BaseModel):
             if self.verbose:
                 error = self._compute_reconstruction_error(data)
                 print(">> Epoch %d finished \tRBM Reconstruction error %f" % (iteration, error))
+                xiteration[iteration-1] = iteration
+                yerror[iteration-1] = error
+        plt.plot(xiteration, yerror, 'bo', xiteration, yerror, 'k')
+        plt.title('RBM '+str(rbm+1))
+        plt.show()
+        plt.savefig('RBM '+str(rbm+1)+'.png')
+        rbm = rbm+1
+
 
     def _contrastive_divergence(self, vector_visible_units):
         """
@@ -323,6 +333,9 @@ class AbstractSupervisedDBN(BaseEstimator, BaseModel):
         self.dropout_p = dropout_p
         self.p = 1 - self.dropout_p
         self.verbose = verbose
+        global rbm
+        rbm = 0
+
 
     def fit(self, X, y=None, pre_train=True):
         """
@@ -431,6 +444,8 @@ class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
         accum_delta_bias = [np.zeros(rbm.c.shape) for rbm in self.unsupervised_dbn.rbm_layers]
         accum_delta_bias.append(np.zeros(self.b.shape))
 
+        xiter = np.zeros(self.n_iter_backprop)
+        yval = np.zeros(self.n_iter_backprop)
         for iteration in range(1, self.n_iter_backprop + 1):
             idx = np.random.permutation(len(_data))
             data = _data[idx]
@@ -467,6 +482,13 @@ class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
             if self.verbose:
                 error = np.mean(np.sum(matrix_error, 1))
                 print(">> Epoch %d finished \tANN training loss %f" % (iteration, error))
+                xiter[iteration-1] = iteration
+                yval[iteration-1] = error
+        plt.plot(xiter, yval, 'bo', xiter, yval, 'k')
+        plt.title('Uczenie')
+        plt.show()
+        plt.savefig('Uczenie.png')
+
 
     def _backpropagation(self, input_vector, label):
         """
@@ -739,3 +761,4 @@ class SupervisedDBNRegression(NumPyAbstractSupervisedDBN, RegressorMixin):
         """
         error = predicted - label
         return error * error
+
