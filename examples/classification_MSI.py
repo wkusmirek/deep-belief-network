@@ -1,16 +1,16 @@
 import numpy as np
-#import winsound
+import winsound
 import csv
 np.random.seed(1337)  # for reproducibility
 from sklearn.metrics.classification import accuracy_score
 from dbn import SupervisedDBNClassification
 
-classifier = SupervisedDBNClassification(hidden_layers_structure=[2000, 2000, ],
-                                         learning_rate_rbm=0.01,
-                                         learning_rate=0.01,
+classifier = SupervisedDBNClassification(hidden_layers_structure=[500, 500, 2000],
+                                         learning_rate_rbm=0.1,
+                                         learning_rate=0.1,
                                          n_epochs_rbm=20,
                                          n_iter_backprop=200,
-                                         batch_size=10,
+                                         batch_size=32,
                                          activation_function='relu',
                                          dropout_p=0.2)
 
@@ -35,7 +35,7 @@ def filter_dataset(classnames, train_data, train_labels, test_data, test_labels)
     return classnames, train_data, train_labels, test_data, test_labels
 
 
-#winsound.Beep(1000,440)
+winsound.Beep(1000,440)
 classnames_16, train_data_16, train_labels_16, test_data_16, test_labels_16 = load_dataset('data/caltech101_silhouettes_16_split1.mat')
 classnames_28, train_data_28, train_labels_28, test_data_28, test_labels_28 = load_dataset('data/caltech101_silhouettes_28_split1.mat')
 classnames_16, train_data_16, train_labels_16, test_data_16, test_labels_16 = filter_dataset(classnames_16, train_data_16, train_labels_16, test_data_16, test_labels_16)
@@ -68,4 +68,3 @@ with open('wyniki.csv', mode='w') as wyniki:
         for j in range(0, len(classnames_28)-1):
             csvRow.append(data[i, j])
         wyniki_writer.writerow(csvRow)
-

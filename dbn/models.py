@@ -125,9 +125,11 @@ class BinaryRBM(BaseEstimator, TransformerMixin, BaseModel):
                 xiteration[iteration-1] = iteration
                 yerror[iteration-1] = error
         plt.plot(xiteration, yerror, 'bo', xiteration, yerror, 'k')
-        plt.title('RBM '+str(rbm+1))
+        plt.xlabel('iteration')
+        plt.ylabel('error')
+        plt.title('Uczenie RBM '+str(rbm+1))
+        plt.savefig('RBM '+str(rbm+1)+'.eps', format='eps')
         plt.show()
-        plt.savefig('RBM '+str(rbm+1)+'.png')
         rbm = rbm+1
 
 
@@ -485,9 +487,11 @@ class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
                 xiter[iteration-1] = iteration
                 yval[iteration-1] = error
         plt.plot(xiter, yval, 'bo', xiter, yval, 'k')
+        plt.xlabel('iteration')
+        plt.ylabel('error')
         plt.title('Uczenie')
+        plt.savefig('Uczenie.eps', format='eps')
         plt.show()
-        plt.savefig('Uczenie.png')
 
 
     def _backpropagation(self, input_vector, label):
